@@ -30,14 +30,14 @@ export const FormSubmit = ({
   return (
     <Button
       disabled={pending || disabled}
-      type="submit"
+      type='submit'
       variant={variant}
-      size="sm"
+      size='sm'
       className={cn(className, 'relative')}
     >
       {pending && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Loader2 className="h-4 w-4 animate-spin" />
+        <div className='absolute inset-0 flex items-center justify-center'>
+          <Loader2 className='h-4 w-4 animate-spin' />
         </div>
       )}
       <span className={cn(pending && 'invisible')}>{children}</span>
