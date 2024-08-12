@@ -11,9 +11,13 @@ import { ListOptions } from './list-options'
 
 interface ListHeaderProps {
   data: List
+  onAddCard: () => void
 }
 
-export const ListHeader = ({ data }: ListHeaderProps) => {
+export const ListHeader = ({
+  data,
+  onAddCard,
+}: ListHeaderProps) => {
   const formRef = useRef<ElementRef<'form'>>(null)
   const inputRef = useRef<ElementRef<'input'>>(null)
 
@@ -58,7 +62,6 @@ export const ListHeader = ({ data }: ListHeaderProps) => {
     const boardId = formData.get('boardId') as string
 
     if (title === data.title) {
-     
       disableEditing()
       return
     }
@@ -79,7 +82,12 @@ export const ListHeader = ({ data }: ListHeaderProps) => {
           className='flex-1 px-[2px]'
         >
           <input hidden id='id' name='id' value={data.id} />
-          <input hidden id='boardId' name='boardId' value={data.boardId} />
+          <input
+            hidden
+            id='boardId'
+            name='boardId'
+            value={data.boardId}
+          />
           <FormInput
             ref={inputRef}
             onBlur={onBlur}
@@ -99,10 +107,7 @@ export const ListHeader = ({ data }: ListHeaderProps) => {
         </div>
       )}
 
-      <ListOptions
-        data={data}
-        onAddCard={()=>{}}
-      />
+      <ListOptions data={data} onAddCard={onAddCard} />
     </div>
   )
 }
