@@ -16,7 +16,7 @@ export const BoardTitleForm = ({
 }: BoardTitleFormProps) => {
   const { execute } = useAction(updateBoard, {
     onSuccess: data => {
-      toast.success(`Board title updated to ${data.title}`)
+      toast.success(`Board title updated to '${data.title}'`)
       setTitle(data.title)
       disableEditing()
     },
@@ -45,6 +45,11 @@ export const BoardTitleForm = ({
 
   const onSubmit = (formData: FormData) => {
     const title = formData.get('title') as string
+
+    if (title === data.title) {
+      disableEditing()
+      return
+    }
 
     execute({
       title,

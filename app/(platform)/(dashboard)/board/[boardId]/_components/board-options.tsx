@@ -10,11 +10,9 @@ import {
 } from '@/components/ui/popover'
 import { useAction } from '@/hooks/use-action'
 import {
-  Delete,
-  DeleteIcon,
   Loader2,
   MoreHorizontal,
-  Trash,
+  Trash2,
   X,
 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -70,8 +68,8 @@ export const BoardOptions = ({ id }: BoardOptionsProps) => {
               <Loader2 className='h-4 w-4 animate-spin' />
             </div>
           )}
-          <Trash className='h-4 w-4 text-rose-500' />
-          {!isLoading && 'Delete this board'}
+          <Trash2 className='h-4 w-4 text-rose-500' />
+          {!isLoading && <p className='text-rose-500'>Delete this board</p>}
         </Button>
       </PopoverContent>
     </Popover>
