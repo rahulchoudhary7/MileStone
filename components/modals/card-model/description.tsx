@@ -22,7 +22,6 @@ interface DescriptionProps {
 }
 
 export const Description = ({ data }: DescriptionProps) => {
-  
   const params = useParams()
 
   const queryClient = useQueryClient()
@@ -31,13 +30,13 @@ export const Description = ({ data }: DescriptionProps) => {
 
   const [isEditing, setIsEditing] = useState(false)
 
-  const { execute } = useAction(updateCard, {
+  const { execute, fieldErrors } = useAction(updateCard, {
     onSuccess: data => {
       queryClient.invalidateQueries({
         queryKey: ['card', data.id],
       })
       disableEditing()
-      toast.success(`${data.title} updated`)
+      toast.success(`'${data.title}' updated`)
     },
     onError: error => {
       toast.error(error)
@@ -93,6 +92,7 @@ export const Description = ({ data }: DescriptionProps) => {
             <FormTextarea
               id='description'
               ref={textareaRef}
+              errors={fieldErrors}
               className='w-full mt-2'
               placeholder='Add more detailed description...'
               defaultValue={data.description || undefined}
@@ -111,12 +111,15 @@ export const Description = ({ data }: DescriptionProps) => {
           </form>
         ) : (
           <div
-            className='min-h-[78px]  bg-neutral-100 shadow-md text-sm font-medium py-3 px-3.5 rounded-md'
+            className='min-h-[78px]  bg-neutral-100 shadow-sm text-sm font-medium py-3 px-3.5 rounded-md'
             role='button'
             onClick={enableEditing}
           >
-            {data.description ||
-              <span className='text-neutral-400'>Add a more detailed description...</span>}
+            {data.description || (
+              <span className='text-neutral-400'>
+                Add a more detailed description...
+              </span>
+            )}
           </div>
         )}
       </div>

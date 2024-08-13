@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
 import { FormPopover } from '@/components/form/form-popover'
 import { Hint } from '@/components/hint'
-import { HelpCircle, Plus, User2 } from 'lucide-react'
+import { ClipboardIcon, HelpCircle, Plus, User2 } from 'lucide-react'
 import { db } from '@/lib/db'
 import Link from 'next/link'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -33,10 +33,10 @@ export const BoardList = async () => {
 
   return (
     <div className='space-y-4'>
-      <div className='flex items-center font-semibold text-lg text-neutral-700'>
-        <User2 className='h-6 w-6 mr2' />
-        Your Boards
-      </div>
+      <div className='flex items-center space-x-2 font-semibold text-lg text-neutral-700 py-2 hover:bg-neutral-100 rounded cursor-pointer transition-colors duration-200'>
+  <ClipboardIcon className='h-6 w-6' />
+  <h2>Your Boards</h2>
+</div>
       <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4'>
         {boards.map(board => (
           <Link

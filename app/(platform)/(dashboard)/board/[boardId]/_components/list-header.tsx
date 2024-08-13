@@ -54,6 +54,9 @@ export const ListHeader = ({
     }
   }
 
+  const onBlur = () => {
+    formRef.current?.requestSubmit()
+  }
   useEventListener('keydown', onKeyDown)
 
   const onSubmit = (formData: FormData) => {
@@ -69,9 +72,6 @@ export const ListHeader = ({
     execute({ title, id, boardId })
   }
 
-  const onBlur = () => {
-    formRef.current?.requestSubmit()
-  }
 
   return (
     <div className='pt-2 px-2 text-sm font-semibold flex justify-between items-start gap-x-2'>
