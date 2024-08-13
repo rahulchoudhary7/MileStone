@@ -17,10 +17,14 @@ interface FormInputProps {
   errors?: Record<string, string[] | undefined>
   className?: string
   defaultValue?: string
+  autoFocus?: boolean
   onBlur?: () => void
 }
 
-export const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
+export const FormInput = forwardRef<
+  HTMLInputElement,
+  FormInputProps
+>(
   (
     {
       id,
@@ -31,6 +35,7 @@ export const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
       disabled,
       errors,
       className,
+      autoFocus,
       defaultValue = '',
       onBlur,
     },
@@ -60,14 +65,15 @@ export const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
             id={id}
             placeholder={placeholder}
             type={type}
-            className={cn('text-sm px-2 py-1 h-7', className)}
+            autoFocus={autoFocus}
+            className={cn(
+              'text-sm px-2 py-1 h-7',
+              className,
+            )}
             aria-describedby={`${id}-error`}
           />
         </div>
-        <FormErrors
-            id={id}
-            errors={errors}
-        />
+        <FormErrors id={id} errors={errors} />
       </div>
     )
   },

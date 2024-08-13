@@ -76,7 +76,7 @@ export const ListContainer = ({
     //if dropped in the same position
 
     if (
-      destination.droppableId === source.draggableId &&
+      destination.droppableId === source.droppableId &&
       destination.index === source.index
     ) {
       return

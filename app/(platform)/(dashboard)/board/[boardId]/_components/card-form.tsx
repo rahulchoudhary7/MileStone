@@ -87,7 +87,7 @@ export const CardForm = forwardRef<
             id='title'
             onKeyDown={onTextareakeyDown}
             ref={ref}
-            placeholder='Enter title for this carda'
+            placeholder='Enter title for this card'
             errors={fieldErrors}
           />
           <input
