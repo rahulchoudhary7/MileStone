@@ -8,6 +8,10 @@ import {
   DragDropContext,
   Droppable,
 } from '@hello-pangea/dnd'
+import { useAction } from '@/hooks/use-action'
+import { updateListOrder } from '@/actions/update-list-order'
+import { toast } from 'sonner'
+import { updateCardOrder } from '@/actions/update-card-order'
 
 interface ListContainerProps {
   data: ListWithCards[]
@@ -38,6 +42,30 @@ export const ListContainer = ({
     setOrderedData(data)
   }, [data])
 
+  const { execute: executeUpdateListOrder } = useAction(
+    updateListOrder,
+    {
+      onSuccess: () => {
+        toast.success('List reorderd')
+      },
+      onError: error => {
+        toast.error(error)
+      },
+    },
+  )
+
+  const { execute: executeUpdateCardOrder } = useAction(
+    updateCardOrder,
+    {
+      onSuccess: () => {
+        toast.success('Card reorderd')
+      },
+      onError: error => {
+        toast.error(error)
+      },
+    },
+  )
+
   const onDragEnd = (result: any) => {
     const { destination, source, type } = result
 
@@ -63,6 +91,8 @@ export const ListContainer = ({
         destination.index,
       ).map((item, index) => ({ ...item, order: index }))
       setOrderedData(items)
+
+      executeUpdateListOrder({ items, boardId })
     }
 
     //moving a card
@@ -109,6 +139,11 @@ export const ListContainer = ({
         sourceList.cards = reorderedCards
 
         setOrderedData(newOrderedData)
+
+        executeUpdateCardOrder({
+          boardId: boardId,
+          items: reorderedCards,
+        })
       }
       //user moves card to another list
       else {
@@ -143,6 +178,10 @@ export const ListContainer = ({
         })
 
         setOrderedData(newOrderedData)
+        executeUpdateCardOrder({
+          boardId: boardId,
+          items: destinationList.cards,
+        })
       }
     }
   }
