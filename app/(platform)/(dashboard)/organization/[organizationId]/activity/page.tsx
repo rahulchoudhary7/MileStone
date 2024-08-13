@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 import localFont from 'next/font/local'
 
 const headingFont = localFont({
-  src: '../public/fonts/CalSans-SemiBold.woff2',
+  src: '../../../../../../public/fonts/CalSans-SemiBold.woff2',
 })
 export default async function Activity() {
   const { userId, orgId } = auth()
