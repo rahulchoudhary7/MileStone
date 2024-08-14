@@ -4,8 +4,10 @@ import { revalidatePath } from 'next/cache'
 import { auth } from '@clerk/nextjs/server'
 import { InputType, ReturnType } from './types'
 import { db } from '@/lib/db'
-import { UpdateCard } from './schema';
-import { createSafeAction } from '@/lib/create-safe-action';
+import { UpdateCard } from './schema'
+import { createSafeAction } from '@/lib/create-safe-action'
+import { createAuditLog } from '@/lib/create-audit-log'
+import { ACTION, ENTITY_TYPE } from '@prisma/client'
 
 const handler = async (data: InputType): Promise<ReturnType> => {
   const { userId, orgId } = auth()
@@ -16,7 +18,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     }
   }
 
-  const {  id, boardId, ...values } = data
+  const { id, boardId, ...values } = data
 
   let card
 
@@ -24,15 +26,21 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     card = await db.card.update({
       where: {
         id,
-        list:{
-          board:{
-            orgId
-          }
-        }
+        list: {
+          board: {
+            orgId,
+          },
+        },
       },
       data: {
-        ...values
+        ...values,
       },
+    })
+    await createAuditLog({
+      entityId: card.id,
+      entityTitle: card.title,
+      entityType: ENTITY_TYPE.CARD,
+      action: ACTION.UPDATE,
     })
   } catch (error) {
     return {
@@ -44,6 +52,5 @@ const handler = async (data: InputType): Promise<ReturnType> => {
 
   return { data: card }
 }
-
 
 export const updateCard = createSafeAction(UpdateCard, handler)

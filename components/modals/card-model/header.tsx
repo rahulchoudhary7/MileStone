@@ -31,6 +31,9 @@ export const Header = ({ data }: HeaderProps) => {
       queryClient.invalidateQueries({
         queryKey: ['card', data.id],
       })
+      queryClient.invalidateQueries({
+        queryKey: ['card-logs', data.id],
+      })
       toast.success(`Renamed to '${data.title}'`)
       setIsEditing(false)
     },
@@ -51,8 +54,6 @@ export const Header = ({ data }: HeaderProps) => {
   const onBlur = () => {
     formRef.current?.requestSubmit()
   }
-
-
 
   const onSubmit = (formData: FormData) => {
     const newTitle = formData.get('title') as string
