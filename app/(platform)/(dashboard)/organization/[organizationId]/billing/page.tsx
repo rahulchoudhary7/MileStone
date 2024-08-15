@@ -38,7 +38,7 @@ const BillingPage = async () => {
     : null
 
   return (
-    <div className='w-full bg-gradient-to-br from-white to-fuchsia-100 px-4 py-8 rounded-md'>
+    <div className='w-full min-h-[80vh] bg-gradient-to-br from-white to-fuchsia-100 px-4 py-8 rounded-md'>
       <div className='max-w-2xl mx-auto'>
         <Info isPro={isPro} />
 
