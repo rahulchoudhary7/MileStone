@@ -1,6 +1,5 @@
 'use client'
 
-import { CreateBoard } from '@/actions/create-board/schema'
 import {
   Popover,
   PopoverContent,
@@ -17,6 +16,7 @@ import { toast } from 'sonner'
 import { FormPicker } from './form-picker'
 import { ElementRef, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { useProModal } from '@/hooks/use-pro-modal'
 
 interface FormPopoverProps {
   children: React.ReactNode
@@ -30,9 +30,10 @@ export const FormPopover = ({
   align,
   sideOffset = 0,
 }: FormPopoverProps) => {
-
   const router = useRouter()
   const closeRef = useRef<ElementRef<'button'>>(null)
+
+  const proModal = useProModal()
   const { execute, fieldErrors } = useAction(createBoard, {
     onSuccess: data => {
       toast.success('Board created')
@@ -42,6 +43,7 @@ export const FormPopover = ({
     onError: error => {
       console.error({ error })
       toast.error(error)
+      proModal.onOpen()
     },
   })
 
@@ -82,7 +84,9 @@ export const FormPopover = ({
             />
           </div>
           <div className=''>
-            <FormSubmit className='w-full'>Create</FormSubmit>
+            <FormSubmit className='w-full'>
+              Create
+            </FormSubmit>
           </div>
         </form>
       </PopoverContent>
