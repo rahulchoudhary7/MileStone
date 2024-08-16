@@ -5,9 +5,11 @@ import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
 export async function POST(req: Request) {
-  console.log('Webhook received');
   const body = await req.text()
-  console.log('Webhook body:', body);
+  console.log('====================================');
+  console.log(body);
+  console.log('====================================');
+
   const signature = headers().get('Stripe-Signature') as string
 
   let event: Stripe.Event
@@ -16,75 +18,53 @@ export async function POST(req: Request) {
     event = stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      process.env.STRIPE_WEBHOOK_SECRET!,
     )
-  } catch (error: any) {
-    console.error(`Webhook error: ${error.message}`)
-    return new NextResponse(`Webhook Error: ${error.message}`, { status: 400 })
+  } catch (error) {
+    return new NextResponse('Webhook error', { status: 400 })
   }
 
-  console.log(`Event received: ${event.type}`)
+  const session = event.data.object as Stripe.Checkout.Session
 
-  try {
-    switch (event.type) {
-      case 'checkout.session.completed':
-        const checkoutSession = event.data.object as Stripe.Checkout.Session
-        await handleCheckoutSessionCompleted(checkoutSession)
-        break
-      case 'invoice.payment_succeeded':
-        const invoice = event.data.object as Stripe.Invoice
-        await handleInvoicePaymentSucceeded(invoice)
-        break
-      default:
-        console.log(`Unhandled event type: ${event.type}`)
+  if (event.type === 'checkout.session.completed') {
+    const subscription = await stripe.subscriptions.retrieve(
+      session.subscription as string,
+    )
+
+    if (!session?.metadata?.orgId) {
+      return new NextResponse('Org Id is required', { status: 400 })
     }
 
-    return new NextResponse(JSON.stringify({ received: true }), { 
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
+    await db.orgSubscription.create({
+      data: {
+        orgId: session?.metadata?.orgId,
+        stripeSubscriptionId: subscription.id,
+        stripeCustomerId: subscription.customer as string,
+        stripePriceId: subscription.items.data[0].price.id,
+        stripeCurrentPeriodEnd: new Date(
+          subscription.current_period_end * 1000,
+        ),
+      },
     })
-  } catch (error: any) {
-    console.error(`Error processing event: ${error.message}`)
-    return new NextResponse(`Server Error: ${error.message}`, { status: 500 })
-  }
-}
-
-async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
-  if (!session?.metadata?.orgId) {
-    throw new Error('Org Id is required')
   }
 
-  const subscription = await stripe.subscriptions.retrieve(
-    session.subscription as string
-  )
+  if (event.type === 'invoice.payment_succeeded') {
+    const subscription = await stripe.subscriptions.retrieve(
+      session.subscription as string,
+    )
 
-  await db.orgSubscription.create({
-    data: {
-      orgId: session.metadata.orgId,
-      stripeSubscriptionId: subscription.id,
-      stripeCustomerId: subscription.customer as string,
-      stripePriceId: subscription.items.data[0].price.id,
-      stripeCurrentPeriodEnd: new Date(
-        subscription.current_period_end * 1000
-      ),
-    },
-  })
-}
+    await db.orgSubscription.update({
+      where: {
+        stripeSubscriptionId: subscription.id,
+      },
+      data: {
+        stripePriceId: subscription.items.data[0].price.id,
+        stripeCurrentPeriodEnd: new Date(
+          subscription.current_period_end * 1000,
+        ),
+      },
+    })
+  }
 
-async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
-  const subscription = await stripe.subscriptions.retrieve(
-    invoice.subscription as string
-  )
-
-  await db.orgSubscription.update({
-    where: {
-      stripeSubscriptionId: subscription.id,
-    },
-    data: {
-      stripePriceId: subscription.items.data[0].price.id,
-      stripeCurrentPeriodEnd: new Date(
-        subscription.current_period_end * 1000
-      ),
-    },
-  })
+  return new NextResponse(null, { status: 200 })
 }
