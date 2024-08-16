@@ -67,6 +67,7 @@ export const FormPopover = ({
         </div>
         <PopoverClose asChild ref={closeRef}>
           <Button
+          ref={closeRef}
             className='h-auto w-auto p-2 absolute top-2 right-2 text-neutral-600 outline-none border-none'
             variant={'ghost'}
           >
