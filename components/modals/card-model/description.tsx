@@ -1,8 +1,7 @@
 'use client'
-
 import { updateCard } from '@/actions/update-card'
 import { FormSubmit } from '@/components/form/form-submit'
-import { FormTextarea } from '@/components/form/form.textarea'
+import { FormTextEditor } from '@/components/form/form-text-editor'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAction } from '@/hooks/use-action'
@@ -23,12 +22,14 @@ interface DescriptionProps {
 
 export const Description = ({ data }: DescriptionProps) => {
   const params = useParams()
-
   const queryClient = useQueryClient()
-  const textareaRef = useRef<ElementRef<'textarea'>>(null)
   const formRef = useRef<ElementRef<'form'>>(null)
-
   const [isEditing, setIsEditing] = useState(false)
+  const [content, setContent] = useState(
+    data.description === '<p><br></p>'
+      ? null
+      : data.description,
+  )
 
   const { execute, fieldErrors } = useAction(updateCard, {
     onSuccess: data => {
@@ -38,7 +39,7 @@ export const Description = ({ data }: DescriptionProps) => {
       queryClient.invalidateQueries({
         queryKey: ['card-logs', data.id],
       })
-      
+
       disableEditing()
       toast.success(`'${data.title}' updated`)
     },
@@ -49,9 +50,6 @@ export const Description = ({ data }: DescriptionProps) => {
 
   const enableEditing = () => {
     setIsEditing(true)
-    setTimeout(() => {
-      textareaRef.current?.focus()
-    })
   }
 
   const disableEditing = () => {
@@ -68,46 +66,45 @@ export const Description = ({ data }: DescriptionProps) => {
   useOnClickOutside(formRef, disableEditing)
 
   const onSubmit = (formData: FormData) => {
-    const description = formData.get(
-      'description',
-    ) as string
     const boardId = params.boardId as string
-
     execute({
       id: data.id,
-      description,
+      description: content || '',
       boardId,
     })
   }
 
+  const handleEditorChange = (newContent: string) => {
+    setContent(newContent.trim() === '' ? null : newContent)
+  }
+
   return (
-    <div className='flex items-start gap-x-3 w-full'>
-      <AlignLeft className='h-5 w-5 mt-0.5' />
+    <div className='flex items-start gap-x-4 w-full'>
+      <AlignLeft className='h-6 w-6 mt-0.5 text-neutral-700' />
       <div className='w-full'>
-        <p className='font-semibold text-neutral-700 mb-2'>
+        <p className='font-semibold text-neutral-800 mb-3'>
           Description
         </p>
         {isEditing ? (
           <form
             action={onSubmit}
             ref={formRef}
-            className='space-y-2'
+            className='space-y-4'
           >
-            <FormTextarea
+            <FormTextEditor
               id='description'
-              ref={textareaRef}
               errors={fieldErrors}
               className='w-full mt-2'
               placeholder='Add more detailed description...'
-              defaultValue={data.description || undefined}
+              defaultValue={content || ''}
+              onChange={handleEditorChange}
             />
-            <div className='flex items-center gap-x-2'>
+            <div className='flex items-center gap-x-3'>
               <FormSubmit>Save</FormSubmit>
               <Button
                 type='button'
                 onClick={disableEditing}
-                variant={'ghost'}
-                className=''
+                variant='ghost'
               >
                 Cancel
               </Button>
@@ -115,14 +112,21 @@ export const Description = ({ data }: DescriptionProps) => {
           </form>
         ) : (
           <div
-            className='min-h-[78px]  bg-neutral-100 shadow-sm text-sm font-medium py-3 px-3.5 rounded-md'
+            className='min-h-[78px] max-h-[200px] shadow-sm border border-gray-100 text-sm font-medium py-4 px-5 rounded-lg hover:bg-neutral-100 transition cursor-pointer overflow-y-auto'
             role='button'
             onClick={enableEditing}
           >
-            {data.description || (
-              <span className='text-neutral-400'>
+            {content ? (
+              <div
+                className='prose prose-xs gap-0 max-w-none'
+                dangerouslySetInnerHTML={{
+                  __html: content,
+                }}
+              />
+            ) : (
+              <p className='text-neutral-500 italic'>
                 Add a more detailed description...
-              </span>
+              </p>
             )}
           </div>
         )}
@@ -133,9 +137,12 @@ export const Description = ({ data }: DescriptionProps) => {
 
 Description.Skeleton = function DescriptionSkeleton() {
   return (
-    <div className='flex items-start gap-x-3 w-full'>
+    <div className='flex items-start gap-x-4 w-full'>
       <Skeleton className='h-6 w-6 bg-neutral-200' />
-      <Skeleton className='w-full h-[78px] bg-neutral-200' />
+      <div className='w-full'>
+        <Skeleton className='w-28 h-6 mb-3 bg-neutral-200' />
+        <Skeleton className='w-full h-[78px] bg-neutral-200 rounded-lg' />
+      </div>
     </div>
   )
 }
