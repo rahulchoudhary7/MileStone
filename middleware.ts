@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 
 export default clerkMiddleware((auth, req) => {
 
-  console.log("Nigga where are you??")
+  console.log("Clerk Middleware hit for:", req.nextUrl.pathname);
   if (!isPublicRoute(req)) auth().protect()
 
   if (auth().userId && isPublicRoute(req)) {
