@@ -3,6 +3,8 @@ import { redirect } from 'next/dist/server/api-utils'
 import { NextResponse } from 'next/server'
 
 export default clerkMiddleware((auth, req) => {
+
+  console.log("Nigga where are you??")
   if (!isPublicRoute(req)) auth().protect()
 
   if (auth().userId && isPublicRoute(req)) {
