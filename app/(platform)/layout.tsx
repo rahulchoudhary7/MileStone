@@ -9,13 +9,11 @@ const PlatformLayout = ({
   children: React.ReactNode
 }) => {
   return (
-    <ClerkProvider afterSignOutUrl='/'>
-      <QueryProvider>
-        <Toaster />
-        <ModalProvider />
-        {children}
-      </QueryProvider>
-    </ClerkProvider>
+    <QueryProvider>
+      <Toaster />
+      <ModalProvider />
+      {children}
+    </QueryProvider>
   )
 }
 
